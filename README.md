@@ -1,0 +1,2 @@
+# Virtual-Physiotherapist-and-Posture-Correction-System
+The system is designed to help users access exercises based on their specific condition, such as back pain, elbow pain, or neck pain, and tailor them according to the severity of their pain. The goal is to implement pain level-based customization, where exercises are categorized into different intensity levels (Level 1, Level 2, and Level 3).
