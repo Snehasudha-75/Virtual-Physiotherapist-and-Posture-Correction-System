@@ -1,0 +1,504 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elbow Pain Exercise - Live Posture Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .demo-section img {
+            width: 100%;
+            height: 280px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .demo-label {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .webcam-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .webcam-section h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        video, canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #feedback {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        #feedback.error {
+            background: #fadbd8;
+            color: #c0392b;
+            border-left-color: #e74c3c;
+        }
+
+        #feedback.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border-left-color: #2ecc71;
+        }
+
+        #feedback.progress {
+            background: #e8dff5;
+            color: #764ba2;
+            border-left-color: #667eea;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-box label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .angle-display {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            border-left: 4px solid #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-end {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .btn-end:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+        }
+
+        .instructions-panel {
+            background: #f4f1f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .instructions-panel h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .instructions-panel p {
+            color: #34495e;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn-end {
+                min-width: 100%;
+            }
+
+            #feedback {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-hand-fist"></i> Elbow Pain Exercise</h1>
+            <p>Real-time posture detection and feedback</p>
+        </div>
+
+        <div class="content">
+            
+            <div class="demo-section">
+                <h3>📌 Exercise Demo (Pain Level {{ pain_level }})</h3>
+                {% if pain_level == 1 %}
+                    <img src="{% static 'images/elbow_pain_level1.gif' %}" alt="Elbow Pain Exercise - Prevention">
+                    <div class="demo-label">Follow this posture (Full Range)</div>
+                {% elif pain_level == 2 %}
+                    <img src="{% static 'images/elbow_pain_level2.gif' %}" alt="Elbow Pain Exercise - Intermediate">
+                    <div class="demo-label">Follow this posture (Moderate Range)</div>
+                {% elif pain_level == 3 %}
+                    <img src="{% static 'images/elbow_pain_level3.gif' %}" alt="Elbow Pain Exercise - Therapeutic">
+                    <div class="demo-label">Follow this posture (Gentle, Minimal Range)</div>
+                {% else %}
+                    <img src="{% static 'images/giphy2.gif' %}" alt="Elbow Pain Exercise Demonstration">
+                    <div class="demo-label">Follow this posture</div>
+                {% endif %}
+            </div>
+
+            
+            <div class="webcam-section">
+                <h3>📹 Your Posture</h3>
+                <div class="video-container">
+                    <video id="video" autoplay></video>
+                    <canvas id="canvas" width="480" height="360"></canvas>
+                </div>
+
+                <div id="feedback">Initializing camera...</div>
+
+                <div class="stats-panel">
+                    <div class="stat-box">
+                        <label>Duration</label>
+                        <div class="value" id="duration">0:00</div>
+                    </div>
+                    <div class="stat-box">
+                        <label>Good Frames</label>
+                        <div class="value" id="goodFrames">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <label>Accuracy</label>
+                        <div class="value" id="accuracy">0%</div>
+                    </div>
+                </div>
+
+                <div class="angle-display">
+                    <span id="angleInfo">Detecting arm angle...</span>
+                </div>
+
+                <div class="instructions-panel">
+                    <h4>💡 Exercise Tips</h4>
+                    <p id="angleRangeTip">✓ Keep elbow angle between 30° - 60°</p>
+                    <p>✓ Position arm straight toward the camera</p>
+                    <p>✓ Keep upper arm relaxed and still</p>
+                    <p>✓ Maintain steady position throughout</p>
+                </div>
+
+                {% if exercises %}
+                <div style="background: #e8f4f8; border-left: 5px solid #27ae60; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="color: #2c3e50; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-list-check"></i> Your Exercise Details</h4>
+                    {% for exercise in exercises %}
+                    <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-size: 12px;">
+                        <strong style="color: #2c3e50;">{{ exercise.name }}</strong>
+                        <p style="color: #555; margin-top: 4px;">{{ exercise.description|truncatewords:20 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-end" onclick="endSession()">
+                <i class="fas fa-check-circle"></i> End Session & Give Feedback
+            </button>
+        </div>
+    </div>
+    <script>      
+        window.PAIN_LEVEL = {{ pain_level|default:1 }}; 
+        (function () {
+            const stepsByLevel = {
+                1: [
+                    "Position Camera - Sit facing the camera with arm extended forward",
+                    "Relax Upper Arm - Keep your upper arm parallel to the ground, pointing toward camera",
+                    "Bend Elbow - Maintain a controlled elbow bend throughout the movement",
+                    "Controlled Movement - Move smoothly through the full range of motion",
+                    "Full Visibility - Keep your arm, elbow, and wrist clearly visible to camera"
+                ],
+                2: [
+                    "Forward Positioning - Sit facing the camera with arm extended forward",
+                    "Minimal Upper Arm Movement - Keep upper arm steady, pointing toward camera",
+                    "Partial Bend - Don't go to full extension or full contraction",
+                    "Slow Movement - Move at 50% of normal speed to reduce strain",
+                    "Good Visibility - Ensure camera can see shoulder, elbow, and wrist clearly"
+                ],
+                3: [
+                    "Comfortable Position - Sit facing camera with arm extended forward comfortably",
+                    "Minimal Movement - Keep upper arm absolutely still and straight",
+                    "Very Small Range - Move through only 30-50% of your normal range",
+                    "Very Slow Motion - Move at 25% speed, take 4-5 seconds per movement",
+                    "Frequent Breaks - Rest for 30-60 seconds between repetitions"
+                ]
+            };
+
+            window.EXERCISE_STEPS = stepsByLevel[window.PAIN_LEVEL] || stepsByLevel[1];
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const angleRangeTip = document.getElementById('angleRangeTip');
+                if (angleRangeTip) {
+                    if (window.PAIN_LEVEL === 1) {
+                        angleRangeTip.innerHTML = '✓ Keep elbow angle between 30° - 60°';
+                    } else if (window.PAIN_LEVEL === 2) {
+                        angleRangeTip.innerHTML = '✓ Keep elbow angle between 40° - 50°';
+                    } else if (window.PAIN_LEVEL === 3) {
+                        angleRangeTip.innerHTML = '✓ Keep elbow angle between 42° - 48°';
+                    }
+                }
+                const panel = document.querySelector('.instructions-panel');
+                if (!panel) return;
+                const heading = document.createElement('h4');
+                heading.innerText = '💡 Exercise Steps';
+                const ul = document.createElement('ul');
+                ul.style.listStyle = 'disc';
+                ul.style.paddingLeft = '18px';
+                window.EXERCISE_STEPS.forEach(step => {
+                    const li = document.createElement('li');
+                    li.style.marginBottom = '8px';
+                    li.innerHTML = `<span>${step}</span>`;
+                    ul.appendChild(li);
+                });
+                panel.innerHTML = '';
+                panel.appendChild(heading);
+                panel.appendChild(ul);
+            });
+        })();
+    </script>
+    <script src="{% static 'js/post.js' %}?v=2024"></script>
+    <script>
+        
+        function getCsrfToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === 'csrftoken=') {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        let startTime = Date.now(); 
+        setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('duration').innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        function endSession() {
+            if (confirm('End this session? You will be taken to the feedback page.')) {        
+                window.speechSynthesis.cancel();       
+                const metrics = window.getSessionMetrics ? window.getSessionMetrics() : {};
+                const score = metrics.accuracy || localStorage.getItem('posture_score') || 0;
+                const csrfToken = getCsrfToken();
+                
+                fetch('/save-score/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ 
+                        score: score,
+                        exercise_type: 'elbow',
+                        metrics: metrics
+                    })
+                }).then(() => {
+                    window.location.href = '/feedback/';
+                }).catch(err => {
+                    console.error('Error saving session:', err);
+                    window.location.href = '/feedback/';
+                });
+            }
+        }      
+        document.addEventListener('click', function (event) {
+            const target = event.target.closest('a');
+            if (target) {
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        
+        ['beforeunload', 'pagehide', 'visibilitychange', 'blur', 'popstate'].forEach(evt => {
+            window.addEventListener(evt, function () { window.speechSynthesis.cancel(); }, false);
+        });
+    </script>
+</body>
+</html>

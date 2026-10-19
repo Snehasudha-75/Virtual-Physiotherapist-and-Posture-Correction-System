@@ -1,0 +1,516 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Pain Exercise - Live Posture Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .demo-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .demo-section img {
+            width: 100%;
+            height: 280px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .demo-label {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .webcam-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .webcam-section h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #video, #canvas {
+            width: 100%;
+            display: block;
+        }
+
+        #video {
+            display: none;
+        }
+
+        #feedback {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            border-left: 5px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        #feedback.error {
+            background: #fadbd8;
+            color: #c0392b;
+            border-left-color: #e74c3c;
+        }
+
+        #feedback.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border-left-color: #2ecc71;
+        }
+
+        #feedback.progress {
+            background: #d6eaf8;
+            color: #2980b9;
+            border-left-color: #3498db;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .stat-box label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-end {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .btn-end:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+        }
+
+        .instructions-panel {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #3498db;
+        }
+
+        .instructions-panel h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .instructions-panel p {
+            color: #34495e;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .timer {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn-end {
+                min-width: 100%;
+            }
+
+            #feedback {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-spine"></i> Back Pain Exercise</h1>
+            <p>Real-time posture detection and feedback</p>
+        </div>
+
+        <div class="content">
+            <!-- Demo Section -->
+            <div class="demo-section">
+                <h3>📌 Exercise Demo (Pain Level {{ pain_level }})</h3>
+                {% if pain_level == 1 %}
+                    <img src="{% static 'images/back_pain_level1.gif' %}" alt="Back Pain Exercise - Prevention">
+                    <div class="demo-label">Follow this posture (Full Range)</div>
+                {% elif pain_level == 2 %}
+                    <img src="{% static 'images/back_pain_level2.gif' %}" alt="Back Pain Exercise - Intermediate">
+                    <div class="demo-label">Follow this posture (Moderate Range)</div>
+                {% elif pain_level == 3 %}
+                    <img src="{% static 'images/back_pain_level3.gif' %}" alt="Back Pain Exercise - Therapeutic">
+                    <div class="demo-label">Follow this posture (Gentle, Minimal Range)</div>
+                {% else %}
+                    <img src="{% static 'images/giphy1.gif' %}" alt="Back Pain Exercise Demonstration">
+                    <div class="demo-label">Follow this posture</div>
+                {% endif %}
+            </div>
+
+            <!-- Webcam Section -->
+            <div class="webcam-section">
+                <h3>📹 Your Posture</h3>
+                <div class="video-container">
+                    <video id="video" autoplay muted playsinline></video>
+                    <canvas id="canvas" width="480" height="360"></canvas>
+                </div>
+
+                <div id="feedback">Initializing camera...</div>
+
+                <div class="stats-panel">
+                    <div class="stat-box">
+                        <label>Duration</label>
+                        <div class="value" id="duration">0:00</div>
+                    </div>
+                    <div class="stat-box">
+                        <label>Good Frames</label>
+                        <div class="value" id="goodFrames">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <label>Accuracy</label>
+                        <div class="value" id="accuracy">0%</div>
+                    </div>
+                </div>
+
+                <div class="instructions-panel">
+                    <h4>💡 Exercise Instructions</h4>
+                    
+                    {% if pain_level == 1 %}
+                        <p><strong>Stand Upright</strong> – Keep your spine straight as shown in the GIF</p>
+                        <p><strong>Pull Shoulders Back</strong> – Retract both shoulders fully</p>
+                        <p><strong>Squeeze Shoulder Blades</strong> – Hold the squeeze firmly</p>
+                        <p><strong>Keep Chin Neutral</strong> – Avoid bending your neck</p>
+                        <p><strong>Hold 20–30 Seconds</strong> – Maintain posture</p>
+                        <p><strong>Release Slowly</strong> – Return to relaxed position</p>
+                    {% elif pain_level == 2 %}
+                        <p><strong>Relax Your Body</strong> – Start gently</p>
+                        <p><strong>Slow Shoulder Pull</strong> – Pull shoulders back halfway</p>
+                        <p><strong>Controlled Movement</strong> – Follow the GIF pace</p>
+                        <p><strong>Neck Relaxed</strong> – No stiffness</p>
+                        <p><strong>Hold 10–15 Seconds</strong></p>
+                        <p><strong>Repeat 5–8 Times</strong></p>
+                    {% elif pain_level == 3 %}
+                        <p><strong>Very Gentle Movement</strong> – Minimal effort only</p>
+                        <p><strong>Partial Shoulder Squeeze</strong> – About 30–40%</p>
+                        <p><strong>No Force</strong> – Pain-free motion only</p>
+                        <p><strong>Slow Breathing</strong> – Inhale and exhale slowly</p>
+                        <p><strong>Hold 5–8 Seconds</strong></p>
+                        <p><strong>Rest Between Reps</strong></p>
+                    {% endif %}
+                </div>
+
+                <div class="instructions-panel" style="background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%); border-left-color: #f39c12;">
+                    <h4 style="color: #e67e22;">💡 Pro Tip:</h4>
+                    {% if pain_level == 1 %}
+                        <p style="color: #c0601c;">For best results, hold this posture for 15-30 seconds. Repeat 10-15 times daily. Focus on keeping your shoulders down to avoid tension in your neck. This preventive exercise helps maintain good posture long-term.</p>
+                    {% elif pain_level == 2 %}
+                        <p style="color: #c0601c;">Do this exercise 3-5 times daily, 8-10 repetitions each time. Stop if you feel sharp pain. Consistency is more important than intensity. Consider doing these exercises after a warm-up or light stretching.</p>
+                    {% elif pain_level == 3 %}
+                        <p style="color: #c0601c;">Take it slowly and gently. Do only 3-5 repetitions, 2 times daily. If you experience pain, stop immediately. It's okay to do partial movements. Healing takes time - be patient with yourself. Consider consulting a physiotherapist.</p>
+                    {% endif %}
+                </div>
+
+                {% if exercises %}
+                <div style="background: #e8f4f8; border-left: 5px solid #27ae60; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="color: #2c3e50; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-list-check"></i> Your Personalized Exercises</h4>
+                    {% for exercise in exercises %}
+                    <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px; font-size: 12px;">
+                        <strong style="color: #2c3e50;">{{ exercise.name }}</strong>
+                        <p style="color: #555; margin-top: 4px;">{{ exercise.description|truncatewords:20 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-end" onclick="endSession()">
+                <i class="fas fa-check-circle"></i> End Session & Give Feedback
+            </button>
+        </div>
+    </div>
+
+   
+    <script>
+        window.PAIN_LEVEL = {{ pain_level|default:1 }};
+        let startTime = Date.now(); 
+        
+        console.log('Page initialized at:', startTime);
+    </script>
+
+    <script src="{% static 'js/poster.js' %}"></script>
+    
+    <script>
+        
+        function getCsrfToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === 'csrftoken=') {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        
+        function initializeVoice() {
+            const utterance = new SpeechSynthesisUtterance('');
+            window.speechSynthesis.speak(utterance);
+            console.log('Voice initialized');
+        }
+        
+        
+        setTimeout(initializeVoice, 500);
+
+        
+        const statsInterval = setInterval(() => {
+            try {
+                
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                
+                const durationElement = document.getElementById('duration');
+                if (durationElement) {
+                    durationElement.innerText = durationText;
+                }
+               
+                if (elapsed % 5 === 0) { 
+                    console.log('Duration Update:', { 
+                        duration: durationText, 
+                        elapsed 
+                    });
+                }
+            } catch (e) {
+                console.error('Stats update error:', e);
+            }
+        }, 200);
+
+        function endSession() {
+            if (confirm('End this session? You will be taken to the feedback page.')) {
+                clearInterval(statsInterval);
+                
+                window.speechSynthesis.cancel();
+                
+                
+                const metrics = window.getSessionMetrics ? window.getSessionMetrics() : {};
+                const score = metrics.accuracy || localStorage.getItem('posture_score') || 0;
+                const csrfToken = getCsrfToken();
+                
+                fetch('/save-score/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ 
+                        score: score,
+                        exercise_type: 'back',
+                        metrics: metrics
+                    })
+                }).then(() => {
+                    window.location.href = '/feedback/';
+                }).catch(err => {
+                    console.error('Error saving session:', err);
+                    window.location.href = '/feedback/';
+                });
+            }
+        }
+
+        
+        document.addEventListener('click', function (event) {
+            const target = event.target.closest('a');
+            if (target) {
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        
+        ['beforeunload', 'pagehide', 'visibilitychange', 'blur', 'popstate'].forEach(evt => {
+            window.addEventListener(evt, function () { window.speechSynthesis.cancel(); }, false);
+        });
+    </script>
+</body>
+</html>

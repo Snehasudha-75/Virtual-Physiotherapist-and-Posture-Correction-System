@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Pain Level - PoseCare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #34495e;
+            opacity: 0.8;
+        }
+
+        .condition-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .pain-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .pain-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .pain-card:nth-child(1) { animation-delay: 0.1s; }
+        .pain-card:nth-child(2) { animation-delay: 0.2s; }
+        .pain-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .pain-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .pain-card input[type="radio"] {
+            display: none;
+        }
+
+        .pain-card input[type="radio"]:checked + .card-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .pain-card input[type="radio"]:checked ~ .checkmark {
+            display: flex;
+        }
+
+        .card-content {
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            background: white;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #667eea;
+            z-index: 3;
+        }
+
+        .pain-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .level-number {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #95a5a6;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pain-card input[type="radio"]:checked ~ .card-content .level-number {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .level-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .pain-card input[type="radio"]:checked ~ .card-content .level-title {
+            color: white;
+        }
+
+        .level-description {
+            font-size: 0.95em;
+            color: #7f8c8d;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .pain-card input[type="radio"]:checked ~ .card-content .level-description {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .level-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 15px;
+        }
+
+        .indicator-bar {
+            width: 30px;
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+        }
+
+        .pain-card:nth-child(1) .indicator-bar {
+            background: #2ecc71;
+        }
+
+        .pain-card:nth-child(2) .indicator-bar:nth-child(1),
+        .pain-card:nth-child(2) .indicator-bar:nth-child(2) {
+            background: #f39c12;
+        }
+
+        .pain-card:nth-child(3) .indicator-bar {
+            background: #e74c3c;
+        }
+
+        .pain-card input[type="radio"]:checked ~ .card-content .indicator-bar {
+            background: white;
+        }
+
+        .submit-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            animation: fadeIn 0.8s ease-out 0.4s backwards;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-width: 200px;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-back {
+            background: #ecf0f1;
+            color: #2c3e50;
+            min-width: 150px;
+        }
+
+        .btn-back:hover {
+            background: #bdc3c7;
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .pain-levels {
+                grid-template-columns: 1fr;
+            }
+
+            .submit-section {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .error-message {
+            background: #e74c3c;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>How much pain are you experiencing?</h1>
+            <p>Select your current pain level to get personalized exercises</p>
+            <div class="condition-badge">
+                {% if condition == "back" %}
+                    Back Pain Exercise
+                {% elif condition == "elbow" %}
+                    Elbow Pain Exercise
+                {% elif condition == "neck" %}
+                    Neck Pain Exercise
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="POST" id="painForm">
+            {% csrf_token %}
+            <input type="hidden" name="condition" value="{{ condition }}">
+
+            <div class="pain-levels">
+                
+                <label class="pain-card">
+                    <input type="radio" name="pain_level" value="1" required>
+                    <div class="checkmark">✓</div>
+                    <div class="card-content">
+                        <div class="pain-icon">😊</div>
+                        <div class="level-number">Level 1</div>
+                        <div class="level-title">No Pain</div>
+                        <div class="level-description">
+                            I feel completely fine and have no pain at all. I want to do preventive exercises.
+                        </div>
+                        <div class="level-indicator">
+                            <div class="indicator-bar"></div>
+                        </div>
+                    </div>
+                </label>
+
+                <label class="pain-card">
+                    <input type="radio" name="pain_level" value="2" required>
+                    <div class="checkmark">✓</div>
+                    <div class="card-content">
+                        <div class="pain-icon">😐</div>
+                        <div class="level-number">Level 2</div>
+                        <div class="level-title">Some Pain</div>
+                        <div class="level-description">
+                            I have mild to moderate pain. I need intermediate exercises to manage my condition.
+                        </div>
+                        <div class="level-indicator">
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                        </div>
+                    </div>
+                </label>
+
+                
+                <label class="pain-card">
+                    <input type="radio" name="pain_level" value="3" required>
+                    <div class="checkmark">✓</div>
+                    <div class="card-content">
+                        <div class="pain-icon">😫</div>
+                        <div class="level-number">Level 3</div>
+                        <div class="level-title">Full Pain</div>
+                        <div class="level-description">
+                            I have severe pain. I need gentle and therapeutic exercises to relieve my condition.
+                        </div>
+                        <div class="level-indicator">
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                            <div class="indicator-bar"></div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="submit-section">
+                <button type="button" class="btn btn-back" onclick="history.back()">
+                    ← Back
+                </button>
+                <button type="submit" class="btn btn-submit" id="submitBtn" disabled>
+                    Continue to Exercise →
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        
+        const radios = document.querySelectorAll('input[name="pain_level"]');
+        const submitBtn = document.getElementById('submitBtn');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

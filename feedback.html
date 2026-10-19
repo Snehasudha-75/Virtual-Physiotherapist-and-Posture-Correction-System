@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Feedback</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: Arial;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="number"]:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .range-value {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+        
+        .value-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+        
+        .slider-container {
+            margin-top: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+           
+            background: linear-gradient(to right, #6bcf7f 0%, #ffd93d 50%, #ff6b6b 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        #rating {
+            background: linear-gradient(to right, #ff6b6b 0%, #ffd93d 50%, #6bcf7f 100%);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 3px solid #667eea;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 3px solid #667eea;
+        }
+        
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="box">
+        <div class="header">
+            <h1>💪 Session Feedback</h1>
+            <p>Help us track your progress and improvements</p>
+        </div>
+
+        <div class="info-box">
+            ✨ Your feedback helps us create better personalized exercises for you!
+        </div>
+
+        <form method="POST" id="feedbackForm">
+            {% csrf_token %}
+
+            
+            <div class="form-group">
+                <label for="pain_level">🔴 Pain Level After Session</label>
+                <div class="slider-container">
+                    <input type="range" id="pain_level" name="pain_level" min="1" max="10" value="5" required>
+                </div>
+                <div class="scale-labels">
+                    <span>No Pain (1)</span>
+                    <span>Moderate (5)</span>
+                    <span>Severe (10)</span>
+                </div>
+                <div class="range-value">
+                    <span>Current Pain Level:</span>
+                    <span class="value-badge" id="painValue">5</span>
+                </div>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="rating">⭐ How was the session?</label>
+                <div class="slider-container">
+                    <input type="range" id="rating" name="rating" min="1" max="5" value="3" required>
+                </div>
+                <div class="scale-labels">
+                    <span>Poor (1)</span>
+                    <span>Neutral (3)</span>
+                    <span>Excellent (5)</span>
+                </div>
+                <div class="range-value">
+                    <span>Session Rating:</span>
+                    <span class="value-badge" id="ratingValue">3</span>
+                </div>
+                
+                <div class="range-value" style="margin-top:8px;">
+                    <span>&nbsp;</span>
+                    <span id="ratingMessage" style="font-size:13px;color:#666;">Neutral</span>
+                </div>
+            </div>
+
+            
+            <div class="form-group">
+                <label for="comment">💬 Comments & Notes</label>
+                <textarea name="comment" id="comment" placeholder="Tell us about your experience... (optional)"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">📊 Submit & View Progress</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const painInput = document.getElementById('pain_level');
+    const ratingInput = document.getElementById('rating');
+    const painValue = document.getElementById('painValue');
+    const ratingValue = document.getElementById('ratingValue');
+
+    function getPainCategory(pain) {
+        pain = parseInt(pain, 10);
+        if (pain <= 1) return { color: '#28a745' };            
+        if (pain <= 3) return { color: '#6bcf7f' };            
+        if (pain <= 7) return { color: '#ffc107' };            
+        if (pain <= 9) return { color: '#fd7e14' };            
+        return { color: '#dc3545' };                         
+    }
+
+    painInput.addEventListener('input', function() {
+        painValue.textContent = this.value;
+        const cat = getPainCategory(this.value);
+        painValue.style.background = cat.color;
+        painValue.style.color = '#fff';
+    });
+
+    function getRatingMessage(val) {
+        
+        val = parseInt(val, 10);
+        if (val <= 1) return "Poor - needs improvement";
+        if (val === 2) return "Below average";
+        if (val === 3) return "Neutral";
+        if (val === 4) return "Good, keep it up";
+        return "Excellent!";
+    }
+    function getRatingColor(val) {
+        val = parseInt(val, 10);
+        if (val <= 1) return '#dc3545'; 
+        if (val === 2) return '#fd7e14';
+        if (val === 3) return '#ffc107'; 
+        if (val === 4) return '#6bcf7f'; 
+        return '#28a745';
+    }
+
+    ratingInput.addEventListener('input', function() {
+        ratingValue.textContent = this.value;
+        const msg = getRatingMessage(this.value);
+        document.getElementById('ratingMessage').textContent = msg;
+        const color = getRatingColor(this.value);
+        ratingValue.style.background = color;
+        ratingValue.style.color = '#fff';
+    });
+
+    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+        
+        const submitBtn = this.querySelector('.btn-submit');
+        submitBtn.textContent = '⏳ Submitting...';
+        submitBtn.disabled = true;
+    });
+</script>
+
+</body>
+</html>

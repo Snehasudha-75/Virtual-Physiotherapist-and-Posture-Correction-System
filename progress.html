@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Progress Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 38px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .pain-level-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .pain-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pain-moderate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .pain-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-pdf {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-continue {
+            background: #6bcf7f;
+            color: white;
+        }
+
+        .btn-logout {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+            }
+
+            .action-buttons {
+                display: none !important;
+            }
+
+            .chart-card,
+            .stat-card {
+                page-break-inside: avoid;
+            }
+
+            table { page-break-inside: auto; }
+            tr    { page-break-inside: avoid; page-break-after: auto; }
+            td    { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container" id="pdfArea">
+    <div class="header">
+        <h1>📊 Your Progress Dashboard</h1>
+        <p>Track your healing journey</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div>Total Sessions</div>
+            <div class="stat-value">{{ total_sessions }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div>Average Pain (All Sessions)</div>
+            <div class="stat-value">{{ avg_pain }}/10</div>
+            <div id="painCategory" class="pain-level-badge"></div>
+            <small style="color: #999; margin-top: 10px; display: block;">Average of {{ total_sessions }} sessions</small>
+        </div>
+
+        <div class="stat-card">
+            <div>Average Rating (All Sessions)</div>
+            <div class="stat-value">{{ avg_rating }}/5</div>
+            <div style="font-size:13px;color:#555;margin-top:6px;">{{ avg_rating_msg }}</div>
+            <small style="color: #999; margin-top: 10px;">Average of {{ total_sessions }} sessions</small>
+        </div>
+
+        <div class="stat-card">
+            <div>Average Accuracy</div>
+            <div class="stat-value">{{ avg_accuracy }}%</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>📈 Pain Level Trend (Per Session)</h3>
+            <canvas id="painChart"></canvas>
+            <small style="color: #999; margin-top: 10px;">Shows pain level for each individual session</small>
+        </div>
+
+        <div class="chart-card">
+            <h3>⭐ Session Rating (Per Session)</h3>
+            <canvas id="ratingChart"></canvas>
+            <small style="color: #999; margin-top: 10px;">Shows rating for each individual session</small>
+        </div>
+    </div>
+
+    
+    <div style="margin-top: 40px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
+        <h3 style="margin-bottom: 20px; color: #333;">📋 Session-by-Session Breakdown</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600;">Session</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600;">Date & Time</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Pain Level</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Rating</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Feedback</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Posture Score</th>
+                </tr>
+            </thead>
+            <tbody id="sessionTable">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="action-buttons">
+    <button class="btn-pdf" onclick="downloadPDF()">📥 Download Report</button>
+    <button class="btn-continue" onclick="stopVoice(); window.location.href='{% url 'dashboard' %}'">💪 Continue</button>
+    <button class="btn-logout" onclick="stopVoice(); window.location.href='{% url 'logout' %}'">🚪 Logout</button>
+</div>
+
+<script>
+    
+    function stopVoice() {
+        window.speechSynthesis.cancel();
+    }
+
+    
+    document.addEventListener('click', function (event) {
+        const target = event.target.closest('a');
+        if (target) {
+            stopVoice();
+        }
+    });
+
+    
+    ['beforeunload', 'pagehide', 'visibilitychange', 'blur', 'popstate'].forEach(evt => {
+        window.addEventListener(evt, stopVoice, false);
+    });
+
+    const painLevels = {{ pain_levels|safe }};
+    const ratings = {{ ratings|safe }};
+    const dates = {{ dates|safe }};
+    const postureLevels = {{ posture_scores|safe }};
+    const avgPain = {{ avg_pain }};
+
+    
+    function getPainCategory(pain) {
+        if (pain <= 3) return { category: "LOW", emoji: "🟢", color: "#28a745", class: "pain-low" };
+        if (pain <= 7) return { category: "MODERATE", emoji: "🟠", color: "#ffc107", class: "pain-moderate" };
+        return { category: "HIGH", emoji: "🔴", color: "#dc3545", class: "pain-high" };
+    }
+
+    
+    const painCat = getPainCategory(avgPain);
+    const painBadge = document.getElementById("painCategory");
+    painBadge.textContent = `${painCat.emoji} ${painCat.category}`;
+    painBadge.className = `pain-level-badge ${painCat.class}`;
+
+    
+    const sessionTable = document.getElementById("sessionTable");
+    function getPainLevelMessage(pain) {
+        pain = parseInt(pain, 10);
+        if (pain <= 3) return "✅ Low pain - excellent progress!";
+        if (pain <= 7) return "⚠️ Moderate pain - continue exercises";
+        return "🔴 High pain - consider reducing intensity";
+    }
+
+    painLevels.forEach((pain, index) => {
+        const painCat = getPainCategory(pain);
+        const msg = getPainLevelMessage(pain);
+        const row = document.createElement("tr");
+        row.style.borderBottom = "1px solid #eee";
+        row.innerHTML = `
+            <td style="padding: 12px;">${index + 1}</td>
+            <td style="padding: 12px;">${dates[index]}</td>
+            <td style="padding: 12px; text-align: center;">
+                <strong style="color: ${painCat.color}">
+                    ${painCat.emoji} ${pain}/10 (${painCat.category})
+                </strong>
+            </td>
+            <td style="padding: 12px; text-align: center;">
+                <strong style="color: ${ratings[index] > 3 ? '#6bcf7f' : '#ffa500'}">
+                    ${ratings[index]}/5 ⭐
+                </strong>
+            </td>
+            <td style="padding: 12px; text-align: center;">
+                ${msg}
+            </td>
+            <td style="padding: 12px; text-align: center;">
+                <strong>${postureLevels[index]}%</strong>
+            </td>
+        `;
+        sessionTable.appendChild(row);
+    });
+
+    
+    new Chart(document.getElementById("painChart"), {
+        type: "line",
+        data: {
+            labels: dates,
+            datasets: [{
+                label: "Pain Level (Per Session)",
+                data: painLevels,
+                borderColor: "#ff6b6b",
+                backgroundColor: "rgba(255, 107, 107, 0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: painLevels.map(p => {
+                    const cat = getPainCategory(p);
+                    return cat.color;
+                })
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const pain = context.parsed.y;
+                            const cat = getPainCategory(pain);
+                            return `Pain: ${pain}/10 (${cat.category})`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 10,
+                    title: { display: true, text: "Pain Level" }
+                }
+            }
+        }
+    });
+
+    
+    new Chart(document.getElementById("ratingChart"), {
+        type: "bar",
+        data: {
+            labels: dates,
+            datasets: [{
+                label: "Rating (Per Session)",
+                data: ratings,
+                backgroundColor: ratings.map(r => r > 3 ? '#6bcf7f' : r > 2 ? '#ffa500' : '#ff6b6b')
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return "Rating: " + context.parsed.y + "/5";
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 5,
+                    title: { display: true, text: "Rating" }
+                }
+            }
+        }
+    });
+
+    
+    function downloadPDF() {
+
+        const totalSessions = {{ total_sessions }};
+        if (totalSessions === 0) {
+            alert("No sessions available to download.");
+            return;
+        }
+
+        const element = document.getElementById("pdfArea");
+
+        const options = {
+            margin: 10,
+            filename: "PoseCare_Progress_Report.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2, backgroundColor: "#ffffff", scrollY: 0 },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        html2pdf().set(options).from(element).save();
+    }
+</script>
+
+</body>
+</html>

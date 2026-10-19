@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoseCare | Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .background-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .shape1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            right: -100px;
+        }
+
+        .shape2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -50px;
+            left: -50px;
+        }
+
+        .register-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            z-index: 1;
+            position: relative;
+        }
+
+        .register-image {
+            flex: 1;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            min-height: 600px;
+        }
+
+        .register-image h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .register-image p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .register-image i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .features {
+            text-align: left;
+            margin-top: 30px;
+            font-size: 13px;
+        }
+
+        .features div {
+            margin: 12px 0;
+            opacity: 0.9;
+        }
+
+        .features i {
+            width: 30px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .register-form-container {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #11998e;
+            background: white;
+            box-shadow: 0 0 10px rgba(17, 153, 142, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #bbb;
+        }
+
+        .password-strength {
+            font-size: 12px;
+            margin-top: 5px;
+            color: #999;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #fadbd8;
+            border-radius: 8px;
+            font-size: 14px;
+            border-left: 4px solid #e74c3c;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .login-link {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #11998e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #38ef7d;
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 20px 0;
+            text-align: center;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .register-wrapper {
+                flex-direction: column;
+            }
+
+            .register-image {
+                padding: 30px;
+                min-height: 300px;
+            }
+
+            .register-image h1 {
+                font-size: 24px;
+            }
+
+            .register-image i {
+                font-size: 50px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            .register-form-container {
+                padding: 30px;
+            }
+
+            .form-header h2 {
+                font-size: 22px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-wrapper {
+                width: 95%;
+                margin: 20px auto;
+            }
+
+            .register-form-container {
+                padding: 20px;
+            }
+
+            .form-header h2 {
+                font-size: 20px;
+            }
+
+            button {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .register-image {
+                min-height: 250px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="background-shapes">
+        <div class="shape shape1"></div>
+        <div class="shape shape2"></div>
+    </div>
+
+    <div class="register-wrapper">
+        <div class="register-image">
+            <div>
+                <i class="fas fa-user-plus"></i>
+                <h1>Join PoseCare</h1>
+                <p>Start Your Journey to Better Posture</p>
+                
+                <div class="features">
+                    <div><i class="fas fa-check-circle"></i>AI-Powered Posture Detection</div>
+                    <div><i class="fas fa-check-circle"></i>Real-time Feedback & Analytics</div>
+                    <div><i class="fas fa-check-circle"></i>Personalized Exercise Plans</div>
+                    <div><i class="fas fa-check-circle"></i>Track Progress Over Time</div>
+                    <div><i class="fas fa-check-circle"></i>Expert Health Insights</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="register-form-container">
+            <div class="form-header">
+                <h2>Create Account</h2>
+                <p>Join thousands of users improving their posture</p>
+            </div>
+
+            {% if error %}
+                <div class="error show">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            {% if errors %}
+                <div class="error show">
+                    <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <form method="POST" autocomplete="off">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user" style="margin-right: 8px;"></i>Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" autocomplete="off" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope" style="margin-right: 8px;"></i>Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="off" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock" style="margin-right: 8px;"></i>Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" autocomplete="off" required>
+                    <div class="password-strength">Use at least 8 characters with letters and numbers</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password"><i class="fas fa-check" style="margin-right: 8px;"></i>Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" autocomplete="off" required>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit">
+                        <i class="fas fa-user-check" style="margin-right: 8px;"></i>Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="divider">────────────────</div>
+
+            <div class="login-link">
+                Already have an account? <a href="{% url 'login' %}">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/validation.js' %}"></script>
+
+</body>
+</html>

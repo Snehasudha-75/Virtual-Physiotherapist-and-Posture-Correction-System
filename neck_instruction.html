@@ -1,0 +1,563 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neck Pain Exercise Instructions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 50px 40px;
+        }
+
+        .demo-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .demo-section img {
+            width: 320px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #f0f0f0;
+        }
+
+        .demo-label {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ul {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .instructions li {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            text-align: left;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .instructions li:hover {
+            border-left-color: #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions li.active {
+            border-left-color: #4caf50;
+            background: linear-gradient(90deg, rgba(244,255,240,1) 0%, rgba(255,255,255,1) 100%);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .instructions li:before {
+            content: "→";
+            font-size: 20px;
+            color: #667eea;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .instructions li span {
+            color: #2c3e50;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .range-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 5px solid #4caf50;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .range-box h3 {
+            color: #2e7d32;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .range-box p {
+            color: #558b2f;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #4caf50;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tip-box strong {
+            color: #e65100;
+            font-size: 16px;
+        }
+
+        .tip-box p {
+            color: #bf360c;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-audio {
+            background: #ff9800;
+            color: white;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .btn-audio:hover {
+            background: #f57c00;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .progress-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .progress-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            line-height: 35px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .progress-step.active .progress-number {
+            background: #764ba2;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 30px 20px;
+            }
+
+            .demo-section img {
+                width: 250px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            button {
+                padding: 12px 25px;
+                font-size: 14px;
+                min-width: 140px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn-start, .btn-audio {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-head-side-virus"></i> Neck Pain Exercise</h1>
+            <p>Relieve tension with gentle neck mobility exercises</p>
+        </div>
+
+        <div class="content">
+            <div class="progress-indicator">
+                <div class="progress-step active">
+                    <div class="progress-number">1</div>
+                    <div>Instructions</div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-number">2</div>
+                    <div>Exercise</div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-number">3</div>
+                    <div>Feedback</div>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                {% if pain_level == 1 %}
+                    <img src="{% static 'images/neck_pain_level1.gif' %}" alt="Neck Pain Exercise - Prevention Level">
+                    <div class="demo-label">📌 Prevention Demonstration (Full Range)</div>
+                {% elif pain_level == 2 %}
+                    <img src="{% static 'images/neck_pain_level2.gif' %}" alt="Neck Pain Exercise - Intermediate Level">
+                    <div class="demo-label">📌 Intermediate Demonstration (Moderate Range)</div>
+                {% elif pain_level == 3 %}
+                    <img src="{% static 'images/neck_pain_level3.gif' %}" alt="Neck Pain Exercise - Therapeutic Level">
+                    <div class="demo-label">📌 Gentle Therapeutic Demonstration (Minimal Range)</div>
+                {% endif %}
+            </div>
+
+            <div class="instructions">
+                <h2><i class="fas fa-clipboard-check"></i> Exercise Instructions</h2>
+                <div id="instruction-list">
+                    <!-- Steps will be rendered here to match the selected GIF/pain level -->
+                </div>
+            </div>
+
+            <div class="range-box">
+                <h3>✓ Target Neck Range of Motion</h3>
+                <div class="range-value" id="rangeValue">30° - 45°</div>
+                <p id="rangeNotice">Maintain this gentle range to improve mobility without straining</p>
+            </div>
+
+            <div class="tip-box">
+                <strong>💡 Pro Tip:</strong>
+                {% if pain_level == 1 %}
+                    <p>For best results, move slowly through the full range. Hold each position for 5-10 seconds. Repeat 5-8 times daily. Focus on smooth, controlled movements without sudden jerks.</p>
+                {% elif pain_level == 2 %}
+                    <p>Do this exercise 3-5 times daily, 5-8 repetitions each time. Move slowly and hold for 3-5 seconds. Stop if you feel sharp pain. Warm up gently before starting.</p>
+                {% elif pain_level == 3 %}
+                    <p>Take it very slowly and gently. Do only 2-3 repetitions, 2 times daily. Hold for 2-3 seconds. If you experience pain, stop immediately. Rest is crucial during the recovery phase.</p>
+                {% endif %}
+            </div>
+
+            {% if exercises %}
+            <div class="exercises-section" style="background: #e8f4f8; border-left: 5px solid #27ae60; padding: 30px; border-radius: 10px; margin: 30px 0;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 18px;"><i class="fas fa-list-check"></i> Personalized Exercises for You</h3>
+                {% for exercise in exercises %}
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #3498db;">
+                    <h4 style="color: #2c3e50; margin-bottom: 8px;">{{ exercise.name }}</h4>
+                    <p style="color: #34495e; margin-bottom: 8px; font-size: 14px;"><strong>Duration:</strong> {{ exercise.duration_minutes }} minutes</p>
+                    <p style="color: #34495e; margin-bottom: 12px; font-size: 14px;">{{ exercise.description }}</p>
+                    <p style="color: #555; font-size: 13px; line-height: 1.6;"><strong>Instructions:</strong> {{ exercise.instructions }}</p>
+                    {% if exercise.video_url %}
+                    <a href="{{ exercise.video_url }}" target="_blank" style="color: #3498db; text-decoration: none; font-size: 13px;"><i class="fas fa-video"></i> Watch Video Guide</a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="button-group">
+                <button class="btn-audio" onclick="speakSteps()">
+                    <i class="fas fa-volume-up"></i> Hear Instructions
+                </button>
+                <form id="startExerciseForm" method="POST" action="{% url 'run_neck' %}" style="width: 100%; max-width: 250px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-start" style="width: 100%;">
+                        <i class="fas fa-play-circle"></i> Start Exercise
+                    </button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        let _currentUtterance = null;
+        let _currentIndex = 0;
+        let _isSpeaking = false;
+        let _totalSteps = 0;
+
+        function clearActiveHighlights() {
+            document.querySelectorAll('.instructions ul li').forEach(li => li.classList.remove('active'));
+        }
+
+        function stopSpeech() {
+            window.speechSynthesis.cancel();
+            _currentUtterance = null;
+            _currentIndex = 0;
+            _isSpeaking = false;
+            _totalSteps = 0;
+            clearActiveHighlights();
+        }
+
+        document.getElementById('startExerciseForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            stopSpeech();
+            setTimeout(() => {
+                this.submit();
+            }, 100);
+        });
+
+        function getStepsForLevel(painLevel) {
+            const steps = {
+                1: [
+                    "🪑 Posture Setup - Sit upright in a firm chair with feet flat on the ground. Keep your shoulders relaxed and pull your chest slightly forward.",
+                    "↔️ Head Rotation - Slowly rotate your head to each side, aiming for about 12 degrees. Pause for 3-5 seconds at each position. Repeat this full side-to-side movement smoothly.",
+                    "⬇️ Forward Bend - Gently lower your chin toward your chest, stretching your upper neck. Hold for 5 seconds and return slowly.",
+                    "⬆️ Backward Tilt - Carefully tilt your head back while looking upward. Hold briefly for 3-5 seconds. (Do not exceed comfortable range)",
+                    "📹 Camera Position - Ensure the camera can clearly see your entire neck, shoulders, and upper back area"
+                ],
+                2: [
+                    "🪑 Gentle Seating - Sit in a supportive chair with good back support. Keep shoulders relaxed and settled down.",
+                    "↔️ Slow Rotation - Rotate your head slowly to each side. Maintain a range of about 9 degrees. Do not force beyond this range.",
+                    "⬇️ Partial Forward - Gently lower your chin slightly. Stop immediately if you feel any tension or discomfort. Go slow and controlled.",
+                    "⬆️ Careful Backward - Tilt your head back very slowly and carefully. Use minimal range - about 9 degrees maximum.",
+                    "📹 Camera Position - Position your camera to clearly see your neck rotation and forward/backward movements"
+                ],
+                3: [
+                    "🪑 Comfortable Position - Sit in the most comfortable chair available. Add a neck pillow if needed for extra support.",
+                    "⬇️ Forward Bend - Gently lower your chin toward your chest. Move slowly and with full control. Stop at any discomfort.",
+                    "⬆️ Backward Tilt - Slowly tilt your head backward. Use minimal, controlled range and listen to your body.",
+                    "❌ No Side Movement - Focus ONLY on forward and backward bending. Do not rotate your head left or right.",
+                    "⏱️ Frequent Resting - Take 1-2 minute breaks between sets. Recovery and comfort are more important than range of motion"
+                ]
+            };
+            return steps[painLevel] || steps[1];
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const painLevel = {{ pain_level|default:1 }};
+            const steps = getStepsForLevel(painLevel);
+            const container = document.getElementById('instruction-list');
+            if (container) {
+                const ul = document.createElement('ul');
+                ul.style.listStyle = 'none';
+                ul.style.marginBottom = '20px';
+                steps.forEach(s => {
+                    const li = document.createElement('li');
+                    li.className = '';
+                    li.style.background = 'white';
+                    li.style.padding = '18px';
+                    li.style.borderRadius = '10px';
+                    li.style.marginBottom = '12px';
+                    li.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.05)';
+                    li.innerHTML = `<span>${s}</span>`;
+                    ul.appendChild(li);
+                });
+                container.innerHTML = '';
+                container.appendChild(ul);
+            }
+
+            const rangeMap = {
+                1: { min: 6, max: 45, notice: 'Maintain this gentle range to improve mobility without straining' },
+                2: { min: 9, max: 18, notice: 'Stay within this reduced range for safe intermediate exercise. Move very slowly.' },
+                3: { min: 5, max: 25, notice: 'Forward/Backward Bending Only: 5° - 25°. Focus on gentle forward and backward movement. No side rotation.' }
+            };
+            const cfg = rangeMap[painLevel] || rangeMap[1];
+            const rangeValue = document.getElementById('rangeValue');
+            const rangeNotice = document.getElementById('rangeNotice');
+            if (rangeValue) {
+                if (painLevel === 3) {
+                    rangeValue.innerText = `${cfg.min}° - ${cfg.max}° (Forward/Backward)`;
+                } else {
+                    rangeValue.innerText = `${cfg.min}° - ${cfg.max}°`;
+                }
+            }
+            if (rangeNotice) rangeNotice.innerText = cfg.notice;
+        });
+
+        function speakSteps() {
+            if (_isSpeaking) {
+                stopSpeech();
+                return;
+            }
+
+            stopSpeech();
+            const painLevel = {{ pain_level }};
+            const steps = getStepsForLevel(painLevel);
+            if (!steps || steps.length === 0) return;
+
+            _isSpeaking = true;
+            _currentIndex = 0;
+            _totalSteps = steps.length;
+
+            function speakNext() {
+                if (_currentIndex >= _totalSteps) {
+                    _isSpeaking = false;
+                    _currentUtterance = null;
+                    _currentIndex = 0;
+                    _totalSteps = 0;
+                    clearActiveHighlights();
+                    window.speechSynthesis.cancel();
+                    return;
+                }
+
+                const text = steps[_currentIndex];
+                const utter = new SpeechSynthesisUtterance(text);
+                utter.lang = 'en-US';
+                utter.rate = 0.86;
+
+                const listItems = document.querySelectorAll('.instructions ul li');
+                clearActiveHighlights();
+                if (listItems && listItems[_currentIndex]) {
+                    listItems[_currentIndex].classList.add('active');
+                    listItems[_currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                utter.onend = function () {
+                    if (!_isSpeaking) return;
+                    _currentIndex += 1;
+                    setTimeout(() => {
+                        speakNext();
+                    }, 300);
+                };
+
+                utter.onerror = function () {
+                    if (!_isSpeaking) return;
+                    _currentIndex += 1;
+                    setTimeout(() => {
+                        speakNext();
+                    }, 300);
+                };
+
+                _currentUtterance = utter;
+                window.speechSynthesis.speak(utter);
+            }
+
+            speakNext();
+        }
+
+        document.addEventListener('click', function (event) {
+            const target = event.target.closest('a');
+            if (target) stopSpeech();
+        });
+
+        document.addEventListener('submit', function (event) {
+            stopSpeech();
+        }, true);
+
+        ['beforeunload', 'pagehide', 'visibilitychange', 'blur', 'popstate'].forEach(evt => {
+            window.addEventListener(evt, function () { stopSpeech(); }, false);
+        });
+    </script>
+</body>
+</html>
